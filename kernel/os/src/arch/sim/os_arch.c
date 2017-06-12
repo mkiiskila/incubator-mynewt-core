@@ -82,12 +82,6 @@ os_arch_in_critical(void)
 }
 
 void
-os_tick_idle(os_time_t ticks)
-{
-    sim_tick_idle(ticks);
-}
-
-void
 __assert_func(const char *file, int line, const char *func, const char *e)
 {
     sim_assert_fail(file, line, func, e);

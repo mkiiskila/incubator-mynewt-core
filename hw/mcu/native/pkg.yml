@@ -27,6 +27,7 @@ pkg.keywords:
 
 pkg.deps:
     - hw/hal
+    - kernel/sim
 
 pkg.req_apis:
     - console

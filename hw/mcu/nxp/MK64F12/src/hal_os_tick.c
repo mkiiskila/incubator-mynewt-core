@@ -26,7 +26,8 @@
 
 #include "fsl_pit.h"
 
-static void nxp_pit0_timer_handler(void)
+static void
+nxp_pit0_timer_handler(void)
 {
     uint32_t sr;
 
@@ -39,7 +40,8 @@ static void nxp_pit0_timer_handler(void)
     OS_EXIT_CRITICAL(sr);
 }
 
-void os_tick_idle(os_time_t ticks)
+void
+hal_os_tick_idle(os_time_t ticks)
 {
     OS_ASSERT_CRITICAL();
 
@@ -47,7 +49,8 @@ void os_tick_idle(os_time_t ticks)
     __WFI();
 }
 
-void os_tick_init(uint32_t os_ticks_per_sec, int prio)
+void
+hal_os_tick_init(uint32_t os_ticks_per_sec, int prio)
 {
     pit_config_t pitConfig;
     uint32_t sr;

@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -16,28 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#ifndef H_HAL_OS_TICK_
-#define H_HAL_OS_TICK_
+#include <stdint.h>
+#include <assert.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <hal/hal_os_tick.h>
 
-#include <os/os_time.h>
+#include <sim/sim.h>
 
-/*
- * Set up the periodic timer to interrupt at a frequency of 'os_ticks_per_sec'.
- * 'prio' is the cpu-specific priority of the periodic timer interrupt.
- */
-void hal_os_tick_init(uint32_t os_ticks_per_sec, int prio);
-
-/*
- * Halt CPU for up to 'n' ticks.
- */
-void hal_os_tick_idle(os_time_t n);
-
-#ifdef __cplusplus
+void
+hal_os_tick_idle(os_time_t ticks)
+{
+    sim_tick_idle(ticks);
 }
-#endif
 
-#endif /* H_HAL_OS_TICK_ */

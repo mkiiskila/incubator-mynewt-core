@@ -58,7 +58,7 @@ mkw41z_os_tick_handler(void)
 }
 
 void
-os_tick_idle(os_time_t ticks)
+hal_os_tick_idle(os_time_t ticks)
 {
     OS_ASSERT_CRITICAL();
 
@@ -67,7 +67,7 @@ os_tick_idle(os_time_t ticks)
 }
 
 void
-os_tick_init(uint32_t os_ticks_per_sec, int prio)
+hal_os_tick_init(uint32_t os_ticks_per_sec, int prio)
 {
     uint32_t ctx;
     uint32_t prescaler_reg;

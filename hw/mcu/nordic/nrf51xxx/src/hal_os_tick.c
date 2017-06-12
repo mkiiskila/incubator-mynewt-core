@@ -138,7 +138,7 @@ rtc1_timer_handler(void)
 }
 
 void
-os_tick_idle(os_time_t ticks)
+hal_os_tick_idle(os_time_t ticks)
 {
     uint32_t ocmp;
 
@@ -168,7 +168,7 @@ os_tick_idle(os_time_t ticks)
 }
 
 void
-os_tick_init(uint32_t os_ticks_per_sec, int prio)
+hal_os_tick_init(uint32_t os_ticks_per_sec, int prio)
 {
     uint32_t ctx;
 

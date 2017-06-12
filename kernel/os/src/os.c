@@ -111,7 +111,7 @@ os_idle_task(void *arg)
         /* Tell the architecture specific support to put the processor to sleep
          * for 'n' ticks.
          */
-        os_tick_idle(iticks);
+        hal_os_tick_idle(iticks);
         OS_EXIT_CRITICAL(sr);
     }
 }
