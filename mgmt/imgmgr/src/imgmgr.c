@@ -100,6 +100,7 @@ imgr_read_info(int image_slot, struct image_version *ver, uint8_t *hash,
                uint32_t *flags)
 {
     struct image_header *hdr;
+    struct image_tlv_info tlv_info;
     struct image_tlv *tlv;
     int rc = -1;
     int rc2;
@@ -133,14 +134,26 @@ imgr_read_info(int image_slot, struct image_version *ver, uint8_t *hash,
         }
     }
 
-    if(flags) {
+    if (flags) {
         *flags = hdr->ih_flags;
     }
+
     /*
      * Build ID is in a TLV after the image.
      */
     data_off = hdr->ih_hdr_size + hdr->ih_img_size;
-    data_end = data_off + hdr->ih_tlv_size;
+
+    rc = flash_area_read(fa, data_off, &tlv_info, sizeof(tlv_info));
+    if (rc) {
+        rc = -1;
+        goto end;
+    }
+    if (tlv_info.it_magic != IMAGE_TRAILER_MAGIC) {
+        rc = 1;
+        goto end;
+    }
+    data_off += sizeof(tlv_info);
+    data_end = data_off + tlv_info.it_tlv_tot;
 
     if (data_end > fa->fa_size) {
         rc = 1;
@@ -385,9 +398,6 @@ imgr_upload(struct mgmt_cbuf *cb)
             }
             rc = flash_area_open(area_id, &imgr_state.upload.fa);
             if (rc) {
-                return MGMT_ERR_EINVAL;
-            }
-            if (IMAGE_SIZE(hdr) > imgr_state.upload.fa->fa_size) {
                 return MGMT_ERR_EINVAL;
             }
 
