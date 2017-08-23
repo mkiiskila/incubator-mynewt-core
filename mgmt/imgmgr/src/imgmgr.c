@@ -81,6 +81,38 @@ static struct mgmt_group imgr_nmgr_group = {
 
 struct imgr_state imgr_state;
 
+#if MYNEWT_VAL(BOOTUTIL_IMAGE_FORMAT_V2)
+static int
+imgr_img_tlvs(const struct flash_area *fa, struct image_header *hdr,
+              uint32_t *start_off, uint32_t *end_off)
+{
+    struct image_tlv_info tlv_info;
+    int rc;
+
+    rc = flash_area_read(fa, *start_off, &tlv_info, sizeof(tlv_info));
+    if (rc) {
+        rc = -1;
+        goto end;
+    }
+    if (tlv_info.it_magic != IMAGE_TRAILER_MAGIC) {
+        rc = 1;
+        goto end;
+    }
+    *start_off += sizeof(tlv_info);
+    *end_off = *start_off + tlv_info.it_tlv_tot;
+    rc = 0;
+end:
+    return rc;
+}
+#else
+static int
+imgr_img_tlvs(const struct flash_area *fa, struct image_header *hdr,
+              uint32_t *start_off, uint32_t *end_off)
+{
+    *end_off = *start_off + hdr->ih_tlv_size;
+    return 0;
+}
+#endif
 /*
  * Read version and build hash from image located slot "image_slot".  Note:
  * this is a slot index, not a flash area ID.
@@ -100,7 +132,6 @@ imgr_read_info(int image_slot, struct image_version *ver, uint8_t *hash,
                uint32_t *flags)
 {
     struct image_header *hdr;
-    struct image_tlv_info tlv_info;
     struct image_tlv *tlv;
     int rc = -1;
     int rc2;
@@ -143,17 +174,10 @@ imgr_read_info(int image_slot, struct image_version *ver, uint8_t *hash,
      */
     data_off = hdr->ih_hdr_size + hdr->ih_img_size;
 
-    rc = flash_area_read(fa, data_off, &tlv_info, sizeof(tlv_info));
+    rc = imgr_img_tlvs(fa, hdr, &data_off, &data_end);
     if (rc) {
-        rc = -1;
         goto end;
     }
-    if (tlv_info.it_magic != IMAGE_TRAILER_MAGIC) {
-        rc = 1;
-        goto end;
-    }
-    data_off += sizeof(tlv_info);
-    data_end = data_off + tlv_info.it_tlv_tot;
 
     if (data_end > fa->fa_size) {
         rc = 1;
