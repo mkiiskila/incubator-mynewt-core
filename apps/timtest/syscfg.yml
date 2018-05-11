@@ -18,7 +18,18 @@
 
 # Package: apps/timtest
 
+syscfg.defs:
+    TASK_TIMER1:
+        description: 'First timer to use in the test'
+        value: 1
+    TASK_TIMER2:
+        description: 'Second timer to use in the test'
+        value: 2
+
+# Turn on some timers. Turn on what what you set as task timers on your target
 syscfg.vals:
     SHELL_TASK: 0
+    TIMER_0: 1
     TIMER_1: 1
     TIMER_2: 1
+    TIMER_3: 1
