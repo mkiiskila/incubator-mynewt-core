@@ -17,7 +17,7 @@
 #
 . $CORE_PATH/hw/scripts/common.sh
 
-CFG_RESET="reset halt"
+CFG_RESET?="reset halt"
 GDB=arm-none-eabi-gdb
 
 #
@@ -54,7 +54,6 @@ openocd_load () {
     if [ $? -ne 0 ]; then
         exit 1
     fi
-    rm $OCD_CMD_FILE
     return 0
 }
 
