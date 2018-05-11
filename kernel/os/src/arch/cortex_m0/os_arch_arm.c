@@ -22,6 +22,8 @@
 #include <hal/hal_os_tick.h>
 #include <mcu/cmsis_nvic.h>
 
+#include <mcu/mcu.h>
+
 #include "os_priv.h"
 
 /*
