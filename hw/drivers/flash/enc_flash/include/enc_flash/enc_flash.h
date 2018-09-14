@@ -35,7 +35,14 @@ struct enc_flash_dev {
 
 extern const struct hal_flash_funcs enc_flash_funcs;
 
-void enc_flash_setkey(struct hal_flash *dev, uint8_t *key);
+/**
+ * Set encryption key to use for this flash device.
+ *
+ * @param dev Pointer to flash device
+ * @param key Pointer to key. This must be 128 bits in size.
+ *
+ */
+void enc_flash_setkey(struct enc_flash_dev *dev, uint8_t *key);
 
 #ifdef __cplusplus
 }

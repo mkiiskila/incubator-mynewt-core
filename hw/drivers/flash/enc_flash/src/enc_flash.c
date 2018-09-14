@@ -167,9 +167,9 @@ enc_flash_is_empty(const struct hal_flash *h_dev, uint32_t addr, uint32_t len)
 }
 
 void
-enc_flash_setkey(struct hal_flash *h_dev, uint8_t *key)
+enc_flash_setkey(struct enc_flash_dev *dev, uint8_t *key)
 {
-    enc_flash_setkey_arch(HAL_TO_ENC(h_dev), key);
+    enc_flash_setkey_arch(dev, key);
 }
 
 static int
