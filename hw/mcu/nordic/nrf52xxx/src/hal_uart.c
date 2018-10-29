@@ -23,6 +23,7 @@
 #include "hal/hal_uart.h"
 #include "mcu/cmsis_nvic.h"
 #include "bsp/bsp.h"
+#include "stats/stats.h"
 
 #include "nrf.h"
 #include "mcu/nrf52_hal.h"
@@ -49,6 +50,24 @@ struct hal_uart {
     hal_uart_tx_done u_tx_done;
     void *u_func_arg;
 };
+
+STATS_SECT_START(hal_uart_stats)
+    STATS_SECT_ENTRY(obyte)
+    STATS_SECT_ENTRY(ibyte)
+    STATS_SECT_ENTRY(ioverrun)
+    STATS_SECT_ENTRY(iparity)
+    STATS_SECT_ENTRY(iframing)
+    STATS_SECT_ENTRY(ibrk)
+STATS_SECT_END
+STATS_NAME_START(hal_uart_stats)
+    STATS_NAME(hal_uart_stats, obyte)
+    STATS_NAME(hal_uart_stats, ibyte)
+    STATS_NAME(hal_uart_stats, ioverrun)
+    STATS_NAME(hal_uart_stats, iparity)
+    STATS_NAME(hal_uart_stats, iframing)
+    STATS_NAME(hal_uart_stats, ibrk)
+STATS_NAME_END(hal_uart_stats)
+static STATS_SECT_DECL(hal_uart_stats) hal_uart_stats;
 
 #if defined(NRF52840_XXAA)
 static struct hal_uart uart0;
@@ -99,6 +118,7 @@ hal_uart_tx_fill_buf(struct hal_uart *u)
         if (data < 0) {
             break;
         }
+        STATS_INC(hal_uart_stats, obyte);
         u->u_tx_buf[i] = data;
     }
     return i;
@@ -259,7 +279,24 @@ uart_irq_handler(NRF_UARTE_Type *nrf_uart, struct hal_uart *u)
         if (rc < 0) {
             u->u_rx_stall = 1;
         } else {
+            STATS_INC(hal_uart_stats, ibyte);
             nrf_uart->TASKS_STARTRX = 1;
+        }
+    }
+    if (nrf_uart->EVENTS_ERROR) {
+        rc = nrf_uart->ERRORSRC;
+        nrf_uart->ERRORSRC = rc;
+        if (rc & 0x8) {
+            STATS_INC(hal_uart_stats, ioverrun);
+        }
+        if (rc & 0x4) {
+            STATS_INC(hal_uart_stats, iparity);
+        }
+        if (rc & 0x2) {
+            STATS_INC(hal_uart_stats, iframing);
+        }
+        if (rc & 1) {
+            STATS_INC(hal_uart_stats, ibrk);
         }
     }
     os_trace_isr_exit();
@@ -344,6 +381,10 @@ hal_uart_init(int port, void *arg)
     nrf_uart->PSEL.RXD = cfg->suc_pin_rx;
     nrf_uart->PSEL.RTS = cfg->suc_pin_rts;
     nrf_uart->PSEL.CTS = cfg->suc_pin_cts;
+
+    stats_init_and_reg(STATS_HDR(hal_uart_stats),
+      STATS_SIZE_INIT_PARMS(hal_uart_stats, STATS_SIZE_32),
+      STATS_NAME_INIT_PARMS(hal_uart_stats), "hal_uart");
 
     return 0;
 }

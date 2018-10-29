@@ -173,8 +173,6 @@ stats_module_init(void)
     /* Ensure this function only gets called by sysinit. */
     SYSINIT_ASSERT_ACTIVE();
 
-    STAILQ_INIT(&g_stats_registry);
-
 #if MYNEWT_VAL(STATS_CLI)
     rc = stats_shell_register();
     SYSINIT_PANIC_ASSERT(rc == 0);
